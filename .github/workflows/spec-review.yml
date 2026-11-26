@@ -1,0 +1,38 @@
+# Spec review: when a PR changes anything in /specs, the agent reviews the spec
+# BEFORE any code is written, and comments on ambiguities and missing cases.
+
+name: Claude spec review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "specs/**"
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--model claude-sonnet-5-5 --max-turns 15"
+          prompt: |
+            You are reviewing a product specification for Razom, not code.
+            Read the changed files in /specs and specs/_core.md.
+            Post ONE PR comment with these sections:
+            1. Ambiguities — statements a developer could implement in two different ways.
+            2. Missing edge cases — states, timings, roles or data not covered.
+            3. Contradictions — with _core.md or other specs.
+            4. Untestable acceptance criteria — and a testable rewrite for each.
+            5. Verdict — "ready for implementation" or "needs changes".
+            Do not edit any files.
