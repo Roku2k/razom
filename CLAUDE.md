@@ -7,6 +7,9 @@ Also follow the Next.js rules in `AGENTS.md`.
 - If the task has no spec, or the spec is unclear or contradicts `_core.md`,
   STOP and ask in a comment. Do not guess.
 - Use the terms exactly as defined in the `_core.md` glossary.
+- Exception: documentation-only changes (README, docs/, comments) and
+  trivial chores (typos, dependency bumps, workflow/config tweaks) don't need
+  a spec. Say in the PR that no spec was needed and why.
 
 ## While you work
 - Change only the files the feature needs. No unrelated refactoring.
