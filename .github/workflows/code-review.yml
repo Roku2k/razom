@@ -1,0 +1,68 @@
+# Code reviewer: checks every PR into `dev` against its spec's acceptance criteria.
+# Read-only: it comments, it never changes code. Runs on a different model than the
+# developer agent, so the work is not graded by the same model that wrote it.
+# Skipped when a PR only touches specs/docs (spec-review.yml covers specs).
+
+name: Claude code review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+    branches: [dev]
+    paths-ignore:
+      - "specs/**"
+      - "docs/**"
+      - "evals/**"
+      - "decisions/**"
+
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          allowed_bots: "claude[bot]"
+          use_sticky_comment: true
+          claude_args: "--model claude-opus-5-5 --max-turns 25"
+          prompt: |
+            You are the CODE REVIEWER for Razom. You did not write this code.
+            Your job: check this PR against its spec. Do not edit any files.
+
+            1. Find the spec linked in the PR description (a file in /specs).
+               Read it and specs/_core.md.
+               If the PR says no spec is needed (docs/chore exception in CLAUDE.md),
+               check that the change really is docs/chore only, then skip to step 5.
+               If there is no spec and no exception, verdict = "needs changes".
+            2. Read the full diff of this PR.
+            3. For EVERY acceptance criterion (AC-..) in the spec, decide:
+               - Implemented? (yes / partly / no) — point to the file and line
+               - Tested? Is there a test named after this AC that actually checks
+                 the behaviour (not just that the code runs)?
+            4. Also check:
+               - Every edge case (EC-..) is handled or explicitly explained
+               - No changes outside the feature's scope
+               - Terms match the _core.md glossary
+               - No secrets or personal data in code or tests
+            5. Post ONE comment in this format:
+
+               ## Spec review: <spec file>
+               | AC | Implemented | Tested | Notes |
+               |----|-------------|--------|-------|
+               ### Edge cases
+               ### Out-of-scope changes
+               ### Spec problems found
+               (things the spec left unclear, so the spec can be fixed — not the code)
+               ### Verdict
+               "ready for UAT" or "needs changes", with a numbered list of required fixes.
