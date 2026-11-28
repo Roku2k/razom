@@ -27,3 +27,10 @@ Also follow the Next.js rules in `AGENTS.md`.
 - `dev` branch → dev environment (integration, agent PRs land here)
 - `release` branch → UAT environment (manual acceptance testing)
 - `main` branch → production
+
+## Testing
+- Unit tests use Vitest. Put them next to the code (`src/**/name.test.ts`) or in `tests/`.
+- Before pushing, run `npm run lint`, `npm run typecheck` and `npm test`. All must pass.
+- If a test fails, fix the code, not the test — unless the test contradicts the spec;
+  then say so in the PR.
+- The "Tests" check runs on every PR and is required for merging.

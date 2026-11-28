@@ -1,6 +1,7 @@
 # Development agent for Razom.
 # Trigger: comment "@claude ..." on an issue or PR, or add the "claude" label to an issue.
 # The agent always branches from `dev` and opens PRs into `dev` — never into release or main.
+# It can install dependencies and run lint, type check and tests before pushing.
 
 name: Claude dev agent
 
@@ -30,9 +31,20 @@ jobs:
         with:
           fetch-depth: 1
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           base_branch: dev
           branch_prefix: feature/
-          claude_args: "--model claude-sonnet-5-5 --max-turns 30"
+          claude_args: >-
+            --model claude-sonnet-5-5
+            --max-turns 30
+            --allowedTools "Bash(npm test:*),Bash(npm run lint:*),Bash(npm run typecheck:*),Bash(npx tsc:*),Bash(npm install:*),Bash(npx vitest:*)"
