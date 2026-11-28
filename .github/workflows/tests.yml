@@ -1,0 +1,34 @@
+# Runs on every PR into dev, release and main. Make the "test" check required
+# in the branch ruleset so a PR with failing tests can't be merged.
+
+name: Tests
+
+on:
+  pull_request:
+    branches: [dev, release, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npm test
