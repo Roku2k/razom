@@ -22,7 +22,10 @@ The agent never merges and never targets `release` or `main`.
 4. **Implementation** — open an issue: `@claude implement specs/NN-feature.md`.
    The agent branches from `dev`, writes code and tests, and opens a PR into `dev`.
 5. **Checks + preview** — tests run on the PR; Vercel deploys a preview.
-   Review the code and the AC checklist in the PR. Ask for fixes with `@claude ...` comments.
+   The code-reviewer agent (`code-review.yml`, a different model, read-only) checks the PR
+   against the spec's acceptance criteria and posts a verdict.
+   Read its review, then review the code yourself. Ask for fixes with `@claude ...` comments;
+   the reviewer re-checks after every new push.
 6. **Merge to dev** — the feature joins the dev environment. Check it works with other features.
 7. **Cut a release** — PR `dev → release`. The UAT environment updates.
 8. **UAT** — test every acceptance criterion of every feature in the release on UAT.
