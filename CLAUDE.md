@@ -30,7 +30,7 @@ Also follow the Next.js rules in `AGENTS.md`.
 
 ## Testing
 - Unit tests use Vitest. Put them next to the code (`src/**/name.test.ts`) or in `tests/`.
-- Before pushing, run `npm run lint`, `npx tsc --noEmit` and `npm test`. All must pass.
+- Before pushing, run `npm run lint`, `npm run typecheck` and `npm test`. All must pass.
 - If a test fails, fix the code, not the test — unless the test contradicts the spec;
   then say so in the PR.
 - The "Tests" check runs on every PR and is required for merging.
